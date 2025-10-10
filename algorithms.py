@@ -6,10 +6,8 @@ class GraphAlgorithms:
         self.graph = graph
     
     def bfs(self, start):
-        """BFS para encontrar componentes conexas"""
-        visited = set()
+        visited = {start}
         queue = deque([start])
-        visited.add(start)
         
         while queue:
             current = queue.popleft()
@@ -17,11 +15,9 @@ class GraphAlgorithms:
                 if neighbor not in visited:
                     visited.add(neighbor)
                     queue.append(neighbor)
-        
         return visited
     
     def is_connected(self):
-        """Determina si el grafo es conexo y encuentra componentes"""
         all_vertices = set(self.graph.get_all_vertices())
         if not all_vertices:
             return True, []
@@ -35,11 +31,9 @@ class GraphAlgorithms:
                 components.append(component)
                 visited_global.update(component)
         
-        is_connected = len(components) == 1
-        return is_connected, components
+        return len(components) == 1, components
     
     def prim_mst(self, vertices_subset=None):
-        """Algoritmo de Prim para MST"""
         if vertices_subset is None:
             vertices_subset = set(self.graph.get_all_vertices())
         
@@ -51,7 +45,6 @@ class GraphAlgorithms:
         mst_edges = []
         total_weight = 0
         
-        # Priority queue: (weight, current_vertex, parent_vertex)
         edges = []
         for neighbor, weight in self.graph.adjacency_list.get(start_vertex, {}).items():
             if neighbor in vertices_subset:
@@ -60,20 +53,18 @@ class GraphAlgorithms:
         while edges and len(visited) < len(vertices_subset):
             weight, src, dest = heapq.heappop(edges)
             
-            if dest not in visited and dest in vertices_subset:
+            if dest in vertices_subset and dest not in visited:
                 visited.add(dest)
                 mst_edges.append((src, dest, weight))
                 total_weight += weight
                 
-                # Add edges from the new vertex
                 for neighbor, new_weight in self.graph.adjacency_list.get(dest, {}).items():
-                    if neighbor not in visited and neighbor in vertices_subset:
+                    if neighbor in vertices_subset and neighbor not in visited:
                         heapq.heappush(edges, (new_weight, dest, neighbor))
         
         return total_weight, mst_edges
     
     def dijkstra(self, start):
-        """Algoritmo de Dijkstra para caminos mínimos"""
         distances = {vertex: float('inf') for vertex in self.graph.get_all_vertices()}
         predecessors = {vertex: None for vertex in self.graph.get_all_vertices()}
         distances[start] = 0
@@ -97,7 +88,6 @@ class GraphAlgorithms:
         return distances, predecessors
     
     def get_shortest_path(self, start, end):
-        """Reconstruye el camino mínimo entre start y end"""
         distances, predecessors = self.dijkstra(start)
         
         if distances[end] == float('inf'):
@@ -113,12 +103,11 @@ class GraphAlgorithms:
         return path, distances[end]
     
     def get_farthest_airports(self, start, k=10):
-        """Encuentra los k aeropuertos más lejanos en términos de camino mínimo"""
         distances, _ = self.dijkstra(start)
         
-        # Filtrar aeropuertos alcanzables y ordenar por distancia
         reachable = [(code, dist) for code, dist in distances.items() 
-                    if dist != float('inf') and code != start]
+                     if dist != float('inf') and code != start]
+        
         reachable.sort(key=lambda x: x[1], reverse=True)
         
         return reachable[:k]
