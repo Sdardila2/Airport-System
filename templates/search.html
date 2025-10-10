@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscar Aeropuerto - Sistema de Aeropuertos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #37474F; 
+            --color-secondary: #78909C;
+        }
+        body {
+            background: #f8f9fa;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: var(--color-primary) !important;
+        }
+        .content-card {
+            background: #ffffff;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+        .feature-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .header-primary {
+            background-color: var(--color-primary) !important;
+            border-color: var(--color-primary) !important;
+            color: white !important;
+        }
+        .header-secondary {
+            background-color: var(--color-secondary) !important;
+            border-color: var(--color-secondary) !important;
+            color: white !important;
+        }
+        .text-action {
+            color: var(--color-primary) !important;
+        }
+        .airport-info-container, .farthest-container {
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .farthest-container {
+            min-height: 400px;
+            max-height: 500px;
+        }
+        .fixed-height {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                Sistema de Aeropuertos
+            </a>
+            <div class="navbar-nav">
+                <a class="nav-link" href="/">Inicio</a>
+                <a class="nav-link active" href="/search">Buscar</a>
+                <a class="nav-link" href="/route">Rutas</a>
+                <a class="nav-link" href="/analysis">Análisis</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="content-card">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="fixed-height">
+                        <div class="card feature-card border-secondary mb-4">
+                            <div class="card-header header-primary">
+                                <h4 class="mb-0">Buscar Aeropuerto</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control form-control-lg" 
+                                           id="airport-code" placeholder="Código (JFK, LAX...)" 
+                                           maxlength="3" style="text-transform:uppercase">
+                                    <button class="btn btn-dark btn-lg" onclick="searchAirport()">
+                                        Buscar
+                                    </button>
+                                </div>
+                                <small class="text-muted">Ingresa el código IATA del aeropuerto (3 letras)</small>
+                            </div>
+                        </div>
+
+                        <div class="card feature-card border-secondary flex-grow-1">
+                            <div class="card-header header-secondary">
+                                <h4 class="mb-0">Información del Aeropuerto</h4>
+                            </div>
+                            <div class="card-body airport-info-container">
+                                <div id="airport-info" class="text-center text-muted">
+                                    <p>Busca un aeropuerto para ver su información</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="fixed-height">
+                        <div class="card feature-card border-secondary h-100">
+                            <div class="card-header header-primary">
+                                <h4 class="mb-0">Aeropuertos Más Lejanos</h4>
+                            </div>
+                            <div class="card-body farthest-container">
+                                <div id="farthest-airports" class="text-center text-muted">
+                                    <p>Los aeropuertos más lejanos aparecerán aquí después de buscar</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const airportCodeInput = document.getElementById('airport-code');
+        const airportInfoDiv = document.getElementById('airport-info');
+        const farthestAirportsContainer = document.getElementById('farthest-airports');
+
+        function searchAirport() {
+            const code = airportCodeInput.value.trim().toUpperCase();
+            if (!code) {
+                alert('Por favor ingresa un código de aeropuerto');
+                return;
+            }
+
+            airportInfoDiv.innerHTML = `
+                <div class="text-center">
+                    <div class="spinner-border text-dark mb-3" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p>Buscando aeropuerto <strong>${code}</strong>...</p>
+                </div>
+            `;
+
+            farthestAirportsContainer.innerHTML = `
+                <div class="text-center">
+                    <div class="spinner-border text-dark mb-3" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p>Esperando información del aeropuerto...</p>
+                </div>
+            `;
+
+            fetch(`/api/airport/${code}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        airportInfoDiv.innerHTML = `
+                            <div class="text-start">
+                                <h5 class="text-success">Info de ${code}</h5>
+                                <p class="mb-1"><strong>Nombre:</strong> ${data.data.name}</p>
+                                <p class="mb-1"><strong>Ciudad:</strong> ${data.data.city}</p>
+                                <p class="mb-1"><strong>País:</strong> ${data.data.country}</p>
+                                <p class="mb-1"><strong>Latitud:</strong> ${data.data.lat.toFixed(4)}</p>
+                                <p class="mb-0"><strong>Longitud:</strong> ${data.data.lon.toFixed(4)}</p>
+                            </div>
+                        `;
+                        loadFarthestAirports(code);
+                    } else {
+                        airportInfoDiv.innerHTML = `
+                            <div class="alert alert-danger text-start">
+                                <strong>Aeropuerto no encontrado</strong><br>
+                                Verifica que el código <strong>${code}</strong> sea correcto.
+                            </div>
+                        `;
+                        farthestAirportsContainer.innerHTML = `
+                            <div class="text-center text-muted">
+                                <p>Busca un aeropuerto válido para ver conexiones</p>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    airportInfoDiv.innerHTML = `
+                        <div class="alert alert-danger">
+                            Error al buscar el aeropuerto: ${error}
+                        </div>
+                    `;
+                });
+        }
+
+        function loadFarthestAirports(code) {
+            farthestAirportsContainer.innerHTML = `
+                <div class="text-center">
+                    <div class="spinner-border text-dark mb-3" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p>Calculando aeropuertos más lejanos...</p>
+                </div>
+            `;
+
+            fetch(`/api/farthest/${code}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        let html = '<div class="list-group list-group-flush">';
+                        
+                        data.forEach((airport, index) => {
+                            const isFarthest = index === 0;
+                            html += `
+                                <div class="list-group-item ${isFarthest ? 'border-dark border-2 bg-light' : ''}">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">
+                                                <span class="badge bg-dark">${airport.code}</span>
+                                                ${airport.name}
+                                            </h6>
+                                            <small class="text-muted">${airport.city}, ${airport.country}</small>
+                                        </div>
+                                        <div class="text-end ms-2">
+                                            <strong class="text-dark">${airport.distance} km</strong>
+                                            ${isFarthest ? '<br><small class="text-dark"><strong>Más lejano</strong></small>' : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        
+                        html += '</div>';
+                        farthestAirportsContainer.innerHTML = html;
+                    } else {
+                        farthestAirportsContainer.innerHTML = `
+                            <div class="alert alert-info">
+                                No se encontraron aeropuertos alcanzables desde ${code}
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    farthestAirportsContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            Error al calcular aeropuertos lejanos
+                        </div>
+                    `;
+                });
+        }
+
+        airportCodeInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchAirport();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            airportCodeInput.focus();
+        });
+    </script>
+</body>
+</html>

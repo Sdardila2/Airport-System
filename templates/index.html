@@ -13,18 +13,22 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 
     <style>
+        :root {
+            --color-primary: #37474F; 
+            --color-secondary: #78909C; 
+        }
         body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: #f8f9fa; 
             font-family: 'Inter', sans-serif;
             color: #333;
         }
         .navbar {
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
         .navbar-brand {
             font-weight: 700;
             font-size: 1.5rem;
-            text-align: center;
+            color: var(--color-primary) !important;
         }
         .hero-section {
             padding: 5rem 0;
@@ -32,26 +36,21 @@
         }
         .hero-section h1 {
             font-weight: 700;
-            color: #2c3e50;
-        }
-        .hero-section p {
-            color: #555;
-            max-width: 600px;
-            margin: 0 auto;
+            color: var(--color-primary);
         }
         .feature-card {
             background-color: #ffffff;
-            border: none;
+            border: 1px solid #e0e0e0;
             border-radius: 1rem;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             height: 100%;
             display: flex;
             flex-direction: column;
         }
         .feature-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
         }
         .feature-card .card-body {
             flex-grow: 1;
@@ -62,34 +61,42 @@
         .feature-card .icon-large {
             font-size: 3rem;
             margin-bottom: 1rem;
+            color: var(--color-secondary); /* Muted icon color */
         }
         .stats-card {
-            background-color: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
             border-radius: 1rem;
             padding: 2rem;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
         .stats-card h3 {
             font-weight: 700;
             font-size: 2.5rem;
+            color: var(--color-primary);
         }
         .map-card {
             border-radius: 1rem;
             overflow: hidden;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
         .map-card iframe {
             border: none;
         }
-        
+        .btn-outline-action {
+            color: var(--color-primary);
+            border-color: var(--color-primary);
+        }
+        .btn-outline-action:hover {
+            background-color: var(--color-primary);
+            color: white;
+        }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top border-bottom">
         <div class="container">
-            <a class="navbar-brand text-primary">✈️ Airport System</a>
+            <a class="navbar-brand">Airport System</a>
         </div>
     </nav>
 
@@ -106,11 +113,11 @@
                 <div class="card feature-card">
                     <div class="card-body text-center p-4">
                         <div>
-                            <div class="icon-large text-primary"><i class="bi bi-search"></i></div>
+                            <div class="icon-large"><i class="bi bi-search"></i></div>
                             <h5 class="card-title fw-bold">Buscar Aeropuerto</h5>
                             <p class="card-text text-muted">Encuentra información detallada de cualquier aeropuerto por su código.</p>
                         </div>
-                        <a href="/search" class="btn btn-outline-primary mt-3">Explorar</a>
+                        <a href="/search" class="btn btn-outline-action mt-3">Explorar</a>
                     </div>
                 </div>
             </div>
@@ -119,11 +126,11 @@
                 <div class="card feature-card">
                     <div class="card-body text-center p-4">
                         <div>
-                            <div class="icon-large text-success"><i class="bi bi-sign-turn-right"></i></div>
+                            <div class="icon-large"><i class="bi bi-sign-turn-right"></i></div>
                             <h5 class="card-title fw-bold">Ruta Más Corta</h5>
                             <p class="card-text text-muted">Calcula la distancia y la ruta óptima entre dos aeropuertos.</p>
                         </div>
-                        <a href="/route" class="btn btn-outline-success mt-3">Calcular</a>
+                        <a href="/route" class="btn btn-outline-action mt-3">Calcular</a>
                     </div>
                 </div>
             </div>
@@ -132,11 +139,11 @@
                 <div class="card feature-card">
                     <div class="card-body text-center p-4">
                         <div>
-                            <div class="icon-large text-info"><i class="bi bi-bar-chart-line"></i></div>
+                            <div class="icon-large"><i class="bi bi-bar-chart-line"></i></div>
                             <h5 class="card-title fw-bold">Análisis del Grafo</h5>
                             <p class="card-text text-muted">Verifica la conexidad del sistema y calcula el Árbol de Recubrimiento Mínimo.</p>
                         </div>
-                        <a href="/analysis" class="btn btn-outline-info mt-3">Analizar</a>
+                        <a href="/analysis" class="btn btn-outline-action mt-3">Analizar</a>
                     </div>
                 </div>
             </div>
@@ -145,11 +152,11 @@
                 <div class="card feature-card">
                     <div class="card-body text-center p-4">
                         <div>
-                            <div class="icon-large text-warning"><i class="bi bi-globe-americas"></i></div>
+                            <div class="icon-large"><i class="bi bi-globe-americas"></i></div>
                             <h5 class="card-title fw-bold">Mapa General</h5>
                             <p class="card-text text-muted">Visualiza todos los aeropuertos del sistema en un mapa interactivo.</p>
                         </div>
-                        <button onclick="generateMap()" class="btn btn-outline-warning mt-3">Generar Mapa</button>
+                        <button onclick="generateMap()" class="btn btn-outline-action mt-3">Generar Mapa</button>
                     </div>
                 </div>
             </div>
@@ -157,22 +164,22 @@
         
         <section class="mt-4">
             <div class="stats-card">
-                <h4 class="text-center mb-4 fw-bold">Estadísticas del Sistema</h4>
+                <h4 class="text-center mb-4 fw-bold" style="color: var(--color-primary);">Estadísticas del Sistema</h4>
                 <div class="row text-center" id="stats-container">
                     <div class="col-md-3 col-6 mb-3">
-                        <h3 class="text-primary" id="total-airports">-</h3>
+                        <h3 class="text-dark" id="total-airports">-</h3>
                         <p class="mb-0 text-muted">Aeropuertos</p>
                     </div>
                     <div class="col-md-3 col-6 mb-3">
-                        <h3 class="text-success" id="total-routes">-</h3>
+                        <h3 class="text-dark" id="total-routes">-</h3>
                         <p class="mb-0 text-muted">Rutas Únicas</p>
                     </div>
                     <div class="col-md-3 col-6 mb-3">
-                        <h3 class="text-info" id="graph-status">-</h3>
+                        <h3 class="text-dark" id="graph-status">-</h3>
                         <p class="mb-0 text-muted">Estado del Grafo</p>
                     </div>
                     <div class="col-md-3 col-6 mb-3">
-                        <h3 class="text-warning" id="total-components">-</h3>
+                        <h3 class="text-dark" id="total-components">-</h3>
                         <p class="mb-0 text-muted">Componentes</p>
                     </div>
                 </div>
@@ -193,7 +200,6 @@
                     document.getElementById('total-components').textContent = data.total_components;
                 })
                 .catch(error => {
-                    console.error('Error fetching stats:', error);
                     const statsContainer = document.getElementById('stats-container');
                     statsContainer.innerHTML = `<div class="col-12"><div class="alert alert-danger">Error al cargar estadísticas.</div></div>`;
                 });
@@ -203,9 +209,9 @@
             const mapContainer = document.getElementById('map-container');
             mapContainer.innerHTML = `
                 <div class="card map-card">
-                    <div class="card-header bg-warning text-dark fw-bold">Generando Mapa General...</div>
+                    <div class="card-header bg-light text-dark fw-bold">Generando Mapa General...</div>
                     <div class="card-body text-center p-5">
-                        <div class="spinner-border text-warning" style="width: 3rem; height: 3rem;" role="status">
+                        <div class="spinner-border text-dark" style="width: 3rem; height: 3rem;" role="status">
                             <span class="visually-hidden">Cargando...</span>
                         </div>
                         <p class="mt-3 text-muted">Esto puede tardar unos segundos.</p>
@@ -217,14 +223,13 @@
                 .then(data => {
                     mapContainer.innerHTML = `
                         <div class="card map-card">
-                            <div class="card-header bg-success text-white fw-bold">Mapa General de Aeropuertos</div>
+                            <div class="card-header bg-dark text-white fw-bold">Mapa General de Aeropuertos</div>
                             <div class="card-body p-0">
                                 <iframe src="${data.map_url}" width="100%" height="600"></iframe>
                             </div>
                         </div>`;
                 })
                 .catch(error => {
-                    console.error('Error generating map:', error);
                     mapContainer.innerHTML = `<div class="alert alert-danger">Error al generar el mapa. Inténtelo de nuevo.</div>`;
                 });
         }
