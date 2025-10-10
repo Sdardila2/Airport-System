@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Aeropuertos</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        .section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .btn { padding: 10px 15px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-info { background: #17a2b8; color: white; }
+        input, select { padding: 8px; margin: 5px; border: 1px solid #ddd; border-radius: 4px; }
+        .result { margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 4px; }
+        .loading { color: #6c757d; font-style: italic; }
+        .error { color: #dc3545; background: #f8d7da; padding: 10px; border-radius: 4px; }
+        .success { color: #155724; background: #d4edda; padding: 10px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✈️ Sistema de Aeropuertos</h1>
+        
+        <!-- Sección 1: Estadísticas -->
+        <div class="section">
+            <h2>📊 Estadísticas del Sistema</h2>
+            <button class="btn btn-primary" onclick="loadStats()">Cargar Estadísticas</button>
+            <div id="stats-result"></div>
+        </div>
+
+        <!-- Sección 2: Buscar Aeropuerto -->
+        <div class="section">
+            <h2>🔍 Buscar Aeropuerto</h2>
+            <input type="text" id="airport-code" placeholder="Código (ej: JFK)" maxlength="3">
+            <button class="btn btn-success" onclick="searchAirport()">Buscar</button>
+            <div id="search-result"></div>
+        </div>
+
+        <!-- Sección 3: Ruta Más Corta -->
+        <div class="section">
+            <h2>🛣️ Ruta Más Corta</h2>
+            <input type="text" id="origin" placeholder="Origen (ej: JFK)" maxlength="3">
+            <input type="text" id="destination" placeholder="Destino (ej: LAX)" maxlength="3">
+            <button class="btn btn-info" onclick="calculateRoute()">Calcular Ruta</button>
+            <div id="route-result"></div>
+        </div>
+
+        <!-- Sección 4: Análisis -->
+        <div class="section">
+            <h2>📈 Análisis del Grafo</h2>
+            <button class="btn btn-primary" onclick="analyzeGraph()">Analizar Grafo</button>
+            <button class="btn btn-success" onclick="generateMap()">Generar Mapa General</button>
+            <div id="analysis-result"></div>
+            <div id="map-result"></div>
+        </div>
+    </div>
+
+    <script>
+        // 1. Cargar Estadísticas
+        function loadStats() {
+            const result = document.getElementById('stats-result');
+            result.innerHTML = '<div class="loading">Cargando estadísticas...</div>';
+            
+            fetch('/api/graph-analysis')
+                .then(response => response.json())
+                .then(data => {
+                    result.innerHTML = `
+                        <div class="success">
+                            <strong>Estadísticas del Sistema:</strong><br>
+                            - Aeropuertos: ${data.total_airports}<br>
+                            - Rutas: ${data.total_routes}<br>
+                            - Estado: ${data.is_connected ? 'CONEXO' : 'NO CONEXO'}<br>
+                            - Componentes: ${data.total_components}<br>
+                            - Peso MST Total: ${data.total_mst_weight} km
+                        </div>
+                    `;
+                })
+                .catch(error => {
+                    result.innerHTML = `<div class="error">Error: ${error}</div>`;
+                });
+        }
+
+        // 2. Buscar Aeropuerto
+        function searchAirport() {
+            const code = document.getElementById('airport-code').value.toUpperCase();
+            if (!code) {
+                alert('Ingresa un código de aeropuerto');
+                return;
+            }
+
+            const result = document.getElementById('search-result');
+            result.innerHTML = '<div class="loading">Buscando aeropuerto...</div>';
+
+            fetch(`/api/airport/${code}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        result.innerHTML = `
+                            <div class="success">
+                                <strong>${code}:</strong> ${data.data.name}<br>
+                                <strong>Ciudad:</strong> ${data.data.city}<br>
+                                <strong>País:</strong> ${data.data.country}<br>
+                                <strong>Coordenadas:</strong> ${data.data.lat.toFixed(4)}, ${data.data.lon.toFixed(4)}
+                            </div>
+                        `;
+                        loadFarthestAirports(code);
+                    } else {
+                        result.innerHTML = `<div class="error">Aeropuerto ${code} no encontrado</div>`;
+                    }
+                })
+                .catch(error => {
+                    result.innerHTML = `<div class="error">Error: ${error}</div>`;
+                });
+        }
+
+        function loadFarthestAirports(code) {
+            fetch(`/api/farthest/${code}`)
+                .then(response => response.json())
+                .then(data => {
+                    const result = document.getElementById('search-result');
+                    let farthestHTML = '<br><strong>Aeropuertos más lejanos:</strong><br>';
+                    data.forEach((airport, index) => {
+                        farthestHTML += `${index + 1}. ${airport.code} - ${airport.distance} km (${airport.city})<br>`;
+                    });
+                    result.innerHTML += farthestHTML;
+                });
+        }
+
+        // 3. Calcular Ruta
+        function calculateRoute() {
+            const origin = document.getElementById('origin').value.toUpperCase();
+            const destination = document.getElementById('destination').value.toUpperCase();
+            
+            if (!origin || !destination) {
+                alert('Ingresa origen y destino');
+                return;
+            }
+
+            const result = document.getElementById('route-result');
+            result.innerHTML = '<div class="loading">Calculando ruta...</div>';
+
+            fetch(`/api/shortest-path?origin=${origin}&destination=${destination}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        let routeHTML = `
+                            <div class="success">
+                                <strong>Ruta encontrada! Distancia: ${data.distance} km</strong><br>
+                                <strong>Camino:</strong><br>
+                        `;
+                        data.path.forEach((airport, index) => {
+                            const type = index === 0 ? 'ORIGEN' : index === data.path.length - 1 ? 'DESTINO' : `Escala ${index}`;
+                            routeHTML += `${index + 1}. ${airport.code} - ${airport.name} (${type})<br>`;
+                        });
+                        routeHTML += `</div>`;
+                        routeHTML += `<iframe src="${data.map_url}" width="100%" height="400" style="border:1px solid #ddd; margin-top:10px;"></iframe>`;
+                        result.innerHTML = routeHTML;
+                    } else {
+                        result.innerHTML = `<div class="error">${data.error}</div>`;
+                    }
+                })
+                .catch(error => {
+                    result.innerHTML = `<div class="error">Error: ${error}</div>`;
+                });
+        }
+
+        // 4. Análisis del Grafo
+        function analyzeGraph() {
+            const result = document.getElementById('analysis-result');
+            result.innerHTML = '<div class="loading">Analizando grafo...</div>';
+
+            fetch('/api/graph-analysis')
+                .then(response => response.json())
+                .then(data => {
+                    let analysisHTML = `
+                        <div class="success">
+                            <strong>Análisis del Grafo:</strong><br>
+                            - Estado: ${data.is_connected ? 'CONEXO' : 'NO CONEXO'}<br>
+                            - Componentes: ${data.total_components}<br>
+                    `;
+                    
+                    if (data.is_connected) {
+                        analysisHTML += `- Peso MST: ${data.mst[0].weight} km<br>`;
+                    } else {
+                        analysisHTML += `<strong>MST por componente:</strong><br>`;
+                        data.mst.forEach(comp => {
+                            analysisHTML += `• Componente ${comp.component}: ${comp.weight} km (${comp.vertices} vértices)<br>`;
+                        });
+                        analysisHTML += `- Peso Total MST: ${data.total_mst_weight} km<br>`;
+                    }
+                    
+                    analysisHTML += `</div>`;
+                    result.innerHTML = analysisHTML;
+                })
+                .catch(error => {
+                    result.innerHTML = `<div class="error">Error: ${error}</div>`;
+                });
+        }
+
+        // 5. Generar Mapa General
+        function generateMap() {
+            const result = document.getElementById('map-result');
+            result.innerHTML = '<div class="loading">Generando mapa...</div>';
+
+            fetch('/api/generate-map')
+                .then(response => response.json())
+                .then(data => {
+                    result.innerHTML = `<iframe src="${data.map_url}" width="100%" height="500" style="border:1px solid #ddd;"></iframe>`;
+                })
+                .catch(error => {
+                    result.innerHTML = `<div class="error">Error: ${error}</div>`;
+                });
+        }
+
+        // Cargar estadísticas al iniciar
+        window.onload = loadStats;
+    </script>
+</body>
+</html>
