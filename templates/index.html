@@ -4,218 +4,230 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Aeropuertos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
-        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
-        .section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
-        .btn { padding: 10px 15px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
-        .btn-primary { background: #007bff; color: white; }
-        .btn-success { background: #28a745; color: white; }
-        .btn-info { background: #17a2b8; color: white; }
-        input, select { padding: 8px; margin: 5px; border: 1px solid #ddd; border-radius: 4px; }
-        .result { margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 4px; }
-        .loading { color: #6c757d; font-style: italic; }
-        .error { color: #dc3545; background: #f8d7da; padding: 10px; border-radius: 4px; }
-        .success { color: #155724; background: #d4edda; padding: 10px; border-radius: 4px; }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        .hero-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 40px;
+            margin-top: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .feature-card {
+            border: none;
+            border-radius: 10px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        .stats-card {
+            background: linear-gradient(45deg, #2c3e50, #34495e);
+            color: white;
+            border-radius: 10px;
+        }
+        .icon-large {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                ✈️ Sistema de Aeropuertos
+            </a>
+        </div>
+    </nav>
+
     <div class="container">
-        <h1>✈️ Sistema de Aeropuertos</h1>
-        
-        <!-- Sección 1: Estadísticas -->
-        <div class="section">
-            <h2>📊 Estadísticas del Sistema</h2>
-            <button class="btn btn-primary" onclick="loadStats()">Cargar Estadísticas</button>
-            <div id="stats-result"></div>
+        <!-- Hero Section -->
+        <div class="hero-section text-center">
+            <h1 class="display-4 fw-bold text-primary mb-3">
+                Sistema de Análisis de Aeropuertos
+            </h1>
+            <p class="lead text-muted mb-4">
+                Analiza rutas, distancias y conexiones entre aeropuertos worldwide
+            </p>
         </div>
 
-        <!-- Sección 2: Buscar Aeropuerto -->
-        <div class="section">
-            <h2>🔍 Buscar Aeropuerto</h2>
-            <input type="text" id="airport-code" placeholder="Código (ej: JFK)" maxlength="3">
-            <button class="btn btn-success" onclick="searchAirport()">Buscar</button>
-            <div id="search-result"></div>
+        <!-- Features Grid -->
+        <div class="row mt-5">
+            <div class="col-md-3 mb-4">
+                <div class="card feature-card">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-large text-primary">
+                            🔍
+                        </div>
+                        <h5 class="card-title fw-bold">Buscar Aeropuerto</h5>
+                        <p class="card-text text-muted">
+                            Encuentra información detallada de cualquier aeropuerto
+                        </p>
+                        <a href="/search" class="btn btn-primary">Explorar</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-4">
+                <div class="card feature-card">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-large text-success">
+                            🛣️
+                        </div>
+                        <h5 class="card-title fw-bold">Ruta Más Corta</h5>
+                        <p class="card-text text-muted">
+                            Calcula la ruta óptima entre dos aeropuertos
+                        </p>
+                        <a href="/route" class="btn btn-success">Calcular</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-4">
+                <div class="card feature-card">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-large text-info">
+                            📊
+                        </div>
+                        <h5 class="card-title fw-bold">Análisis</h5>
+                        <p class="card-text text-muted">
+                            Verifica conexidad y calcula MST del sistema
+                        </p>
+                        <a href="/analysis" class="btn btn-info">Analizar</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-4">
+                <div class="card feature-card">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-large text-warning">
+                            🗺️
+                        </div>
+                        <h5 class="card-title fw-bold">Mapa General</h5>
+                        <p class="card-text text-muted">
+                            Visualiza todos los aeropuertos en mapa interactivo
+                        </p>
+                        <button onclick="generateMap()" class="btn btn-warning">Generar</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Sección 3: Ruta Más Corta -->
-        <div class="section">
-            <h2>🛣️ Ruta Más Corta</h2>
-            <input type="text" id="origin" placeholder="Origen (ej: JFK)" maxlength="3">
-            <input type="text" id="destination" placeholder="Destino (ej: LAX)" maxlength="3">
-            <button class="btn btn-info" onclick="calculateRoute()">Calcular Ruta</button>
-            <div id="route-result"></div>
+        <!-- Statistics -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card stats-card">
+                    <div class="card-body">
+                        <h5 class="card-title text-center mb-4">
+                            📈 Estadísticas del Sistema
+                        </h5>
+                        <div class="row text-center" id="stats-container">
+                            <div class="col-md-3 mb-3">
+                                <h3 class="text-warning" id="total-airports">-</h3>
+                                <p class="mb-0">Total Aeropuertos</p>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <h3 class="text-info" id="total-routes">-</h3>
+                                <p class="mb-0">Total Rutas</p>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <h3 class="text-success" id="graph-status">-</h3>
+                                <p class="mb-0">Estado del Grafo</p>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <h3 class="text-primary" id="total-components">-</h3>
+                                <p class="mb-0">Componentes</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Sección 4: Análisis -->
-        <div class="section">
-            <h2>📈 Análisis del Grafo</h2>
-            <button class="btn btn-primary" onclick="analyzeGraph()">Analizar Grafo</button>
-            <button class="btn btn-success" onclick="generateMap()">Generar Mapa General</button>
-            <div id="analysis-result"></div>
-            <div id="map-result"></div>
-        </div>
+        <!-- Map Container -->
+        <div id="map-container" class="mt-4"></div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // 1. Cargar Estadísticas
+        // Cargar estadísticas al iniciar
         function loadStats() {
-            const result = document.getElementById('stats-result');
-            result.innerHTML = '<div class="loading">Cargando estadísticas...</div>';
-            
             fetch('/api/graph-analysis')
                 .then(response => response.json())
                 .then(data => {
-                    result.innerHTML = `
-                        <div class="success">
-                            <strong>Estadísticas del Sistema:</strong><br>
-                            - Aeropuertos: ${data.total_airports}<br>
-                            - Rutas: ${data.total_routes}<br>
-                            - Estado: ${data.is_connected ? 'CONEXO' : 'NO CONEXO'}<br>
-                            - Componentes: ${data.total_components}<br>
-                            - Peso MST Total: ${data.total_mst_weight} km
+                    document.getElementById('total-airports').textContent = data.total_airports.toLocaleString();
+                    document.getElementById('total-routes').textContent = data.total_routes.toLocaleString();
+                    document.getElementById('graph-status').textContent = data.is_connected ? 'Conectado' : 'No Conectado';
+                    document.getElementById('total-components').textContent = data.total_components;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('stats-container').innerHTML = `
+                        <div class="col-12">
+                            <div class="alert alert-danger">Error al cargar estadísticas</div>
                         </div>
                     `;
-                })
-                .catch(error => {
-                    result.innerHTML = `<div class="error">Error: ${error}</div>`;
                 });
         }
 
-        // 2. Buscar Aeropuerto
-        function searchAirport() {
-            const code = document.getElementById('airport-code').value.toUpperCase();
-            if (!code) {
-                alert('Ingresa un código de aeropuerto');
-                return;
-            }
-
-            const result = document.getElementById('search-result');
-            result.innerHTML = '<div class="loading">Buscando aeropuerto...</div>';
-
-            fetch(`/api/airport/${code}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        result.innerHTML = `
-                            <div class="success">
-                                <strong>${code}:</strong> ${data.data.name}<br>
-                                <strong>Ciudad:</strong> ${data.data.city}<br>
-                                <strong>País:</strong> ${data.data.country}<br>
-                                <strong>Coordenadas:</strong> ${data.data.lat.toFixed(4)}, ${data.data.lon.toFixed(4)}
-                            </div>
-                        `;
-                        loadFarthestAirports(code);
-                    } else {
-                        result.innerHTML = `<div class="error">Aeropuerto ${code} no encontrado</div>`;
-                    }
-                })
-                .catch(error => {
-                    result.innerHTML = `<div class="error">Error: ${error}</div>`;
-                });
-        }
-
-        function loadFarthestAirports(code) {
-            fetch(`/api/farthest/${code}`)
-                .then(response => response.json())
-                .then(data => {
-                    const result = document.getElementById('search-result');
-                    let farthestHTML = '<br><strong>Aeropuertos más lejanos:</strong><br>';
-                    data.forEach((airport, index) => {
-                        farthestHTML += `${index + 1}. ${airport.code} - ${airport.distance} km (${airport.city})<br>`;
-                    });
-                    result.innerHTML += farthestHTML;
-                });
-        }
-
-        // 3. Calcular Ruta
-        function calculateRoute() {
-            const origin = document.getElementById('origin').value.toUpperCase();
-            const destination = document.getElementById('destination').value.toUpperCase();
-            
-            if (!origin || !destination) {
-                alert('Ingresa origen y destino');
-                return;
-            }
-
-            const result = document.getElementById('route-result');
-            result.innerHTML = '<div class="loading">Calculando ruta...</div>';
-
-            fetch(`/api/shortest-path?origin=${origin}&destination=${destination}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        let routeHTML = `
-                            <div class="success">
-                                <strong>Ruta encontrada! Distancia: ${data.distance} km</strong><br>
-                                <strong>Camino:</strong><br>
-                        `;
-                        data.path.forEach((airport, index) => {
-                            const type = index === 0 ? 'ORIGEN' : index === data.path.length - 1 ? 'DESTINO' : `Escala ${index}`;
-                            routeHTML += `${index + 1}. ${airport.code} - ${airport.name} (${type})<br>`;
-                        });
-                        routeHTML += `</div>`;
-                        routeHTML += `<iframe src="${data.map_url}" width="100%" height="400" style="border:1px solid #ddd; margin-top:10px;"></iframe>`;
-                        result.innerHTML = routeHTML;
-                    } else {
-                        result.innerHTML = `<div class="error">${data.error}</div>`;
-                    }
-                })
-                .catch(error => {
-                    result.innerHTML = `<div class="error">Error: ${error}</div>`;
-                });
-        }
-
-        // 4. Análisis del Grafo
-        function analyzeGraph() {
-            const result = document.getElementById('analysis-result');
-            result.innerHTML = '<div class="loading">Analizando grafo...</div>';
-
-            fetch('/api/graph-analysis')
-                .then(response => response.json())
-                .then(data => {
-                    let analysisHTML = `
-                        <div class="success">
-                            <strong>Análisis del Grafo:</strong><br>
-                            - Estado: ${data.is_connected ? 'CONEXO' : 'NO CONEXO'}<br>
-                            - Componentes: ${data.total_components}<br>
-                    `;
-                    
-                    if (data.is_connected) {
-                        analysisHTML += `- Peso MST: ${data.mst[0].weight} km<br>`;
-                    } else {
-                        analysisHTML += `<strong>MST por componente:</strong><br>`;
-                        data.mst.forEach(comp => {
-                            analysisHTML += `• Componente ${comp.component}: ${comp.weight} km (${comp.vertices} vértices)<br>`;
-                        });
-                        analysisHTML += `- Peso Total MST: ${data.total_mst_weight} km<br>`;
-                    }
-                    
-                    analysisHTML += `</div>`;
-                    result.innerHTML = analysisHTML;
-                })
-                .catch(error => {
-                    result.innerHTML = `<div class="error">Error: ${error}</div>`;
-                });
-        }
-
-        // 5. Generar Mapa General
+        // Generar mapa general
         function generateMap() {
-            const result = document.getElementById('map-result');
-            result.innerHTML = '<div class="loading">Generando mapa...</div>';
+            const mapContainer = document.getElementById('map-container');
+            mapContainer.innerHTML = `
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">🗺️ Generando Mapa General...</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="spinner-border text-warning mb-3" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                        <p>Por favor espere...</p>
+                    </div>
+                </div>
+            `;
 
             fetch('/api/generate-map')
                 .then(response => response.json())
                 .then(data => {
-                    result.innerHTML = `<iframe src="${data.map_url}" width="100%" height="500" style="border:1px solid #ddd;"></iframe>`;
+                    mapContainer.innerHTML = `
+                        <div class="card">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0">🗺️ Mapa General de Aeropuertos</h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <iframe src="${data.map_url}" width="100%" height="500" style="border: none;"></iframe>
+                            </div>
+                        </div>
+                    `;
                 })
                 .catch(error => {
-                    result.innerHTML = `<div class="error">Error: ${error}</div>`;
+                    mapContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i> Error al generar el mapa
+                        </div>
+                    `;
                 });
         }
 
-        // Cargar estadísticas al iniciar
-        window.onload = loadStats;
+        // Cargar estadísticas al iniciar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStats();
+        });
     </script>
 </body>
 </html>
