@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Airport System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #37474F; 
+            --color-secondary: #78909C; 
+            --color-action: #2C3E50; 
+        }
+        body {
+            background: #f8f9fa;
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+        }
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: var(--color-action) !important;
+        }
+        .content-card {
+            background: #ffffff;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+        .analysis-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .stats-highlight {
+            background-color: var(--color-primary);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+        .card-header-primary {
+            background-color: var(--color-primary) !important;
+            color: white !important;
+        }
+        .btn-action {
+            background-color: var(--color-action);
+            border-color: var(--color-action);
+            color: white;
+        }
+        .btn-action:hover {
+            background-color: #455A64;
+            border-color: #455A64;
+        }
+        .text-action {
+            color: var(--color-action) !important;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                Airport System
+            </a>
+            <div class="navbar-nav">
+                <a class="nav-link" href="/">Inicio</a>
+                <a class="nav-link" href="/search">Buscar</a>
+                <a class="nav-link" href="/route">Rutas</a>
+                <a class="nav-link active" href="/analysis">Análisis</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="content-card">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <button class="btn btn-action w-100 btn-lg" onclick="analyzeGraph()">
+                        Ejecutar Análisis Completo
+                    </button>
+                </div>
+                <div class="col-md-6">
+                    <button class="btn btn-outline-dark w-100 btn-lg" onclick="generateMap()">
+                        Generar Mapa General
+                    </button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div id="analysis-result">
+                        <div class="card analysis-card">
+                            <div class="card-body text-center text-muted">
+                                <h5>Análisis del Sistema</h5>
+                                <p>Presiona "Ejecutar Análisis Completo" para ver los resultados</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div id="general-map">
+                        <div class="card analysis-card h-100">
+                            <div class="card-body text-center text-muted">
+                                <h5>Mapa General</h5>
+                                <p>Presiona "Generar Mapa General" para visualizar todos los aeropuertos</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function analyzeGraph() {
+            const resultDiv = document.getElementById('analysis-result');
+            resultDiv.innerHTML = `
+                <div class="card analysis-card">
+                    <div class="card-body text-center">
+                        <div class="spinner-border text-action mb-3" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                        <p>Analizando el sistema de aeropuertos...</p>
+                    </div>
+                </div>
+            `;
+
+            fetch('/api/graph-analysis')
+                .then(response => response.json())
+                .then(data => {
+                    let html = `
+                        <div class="card analysis-card">
+                            <div class="card-header card-header-primary">
+                                <h5 class="mb-0">Resultados del Análisis</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center mb-4">
+                                    <div class="col-6 mb-3">
+                                        <div class="stats-highlight">
+                                            <h4>${data.total_airports.toLocaleString()}</h4>
+                                            <p class="mb-0">Aeropuertos</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <div class="stats-highlight">
+                                            <h4>${data.total_routes.toLocaleString()}</h4>
+                                            <p class="mb-0">Rutas</p>
+                                        </div>
+                                    </div>
+                                </div>
+                    `;
+
+                    if (data.is_connected) {
+                        html += `
+                            <div class="alert alert-success">
+                                <strong>El grafo ES CONEXO</strong><br>
+                                Todos los aeropuertos están conectados entre sí, formando una sola red.
+                            </div>
+                        `;
+                    } else {
+                        html += `
+                            <div class="alert alert-warning">
+                                <strong>El grafo NO ES CONEXO</strong><br>
+                                El sistema está dividido en ${data.total_components} componentes separados.
+                            </div>
+                        `;
+                    }
+
+                    html += `
+                        <h6 class="border-bottom pb-2 mb-3">Árbol de Expansión Mínima (MST)</h6>
+                    `;
+
+                    if (data.is_connected) {
+                        html += `
+                            <div class="alert alert-info">
+                                <strong>Peso Total del MST:</strong> ${data.mst[0].weight} km<br>
+                                <strong>Vértices incluidos:</strong> ${data.mst[0].vertices}
+                            </div>
+                        `;
+                    } else {
+                        html += `<div class="row">`;
+                        data.mst.forEach(component => {
+                            html += `
+                                <div class="col-12 mb-2">
+                                    <div class="card bg-light">
+                                        <div class="card-body py-2">
+                                            <strong>Componente ${component.component}:</strong><br>
+                                            <small>Peso: ${component.weight} km | Vértices: ${component.vertices}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        html += `</div>`;
+                        html += `
+                            <div class="alert alert-info mt-3">
+                                <strong>Peso total de todos los MST:</strong> ${data.total_mst_weight} km
+                            </div>
+                        `;
+                    }
+
+                    html += `</div></div>`;
+                    resultDiv.innerHTML = html;
+                })
+                .catch(error => {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-danger">
+                            Error en el análisis: ${error}
+                        </div>
+                    `;
+                });
+        }
+
+        function generateMap() {
+            const mapDiv = document.getElementById('general-map');
+            mapDiv.innerHTML = `
+                <div class="card analysis-card">
+                    <div class="card-body text-center">
+                        <div class="spinner-border text-action mb-3" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                        <p>Generando mapa de aeropuertos...</p>
+                    </div>
+                </div>
+            `;
+
+            fetch('/api/generate-map')
+                .then(response => response.json())
+                .then(data => {
+                    mapDiv.innerHTML = `
+                        <div class="card analysis-card">
+                            <div class="card-header card-header-primary">
+                                <h5 class="mb-0">Mapa General de Aeropuertos</h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <iframe src="${data.map_url}" width="100%" height="400" style="border: none;"></iframe>
+                            </div>
+                        </div>
+                    `;
+                })
+                .catch(error => {
+                    mapDiv.innerHTML = `
+                        <div class="alert alert-danger">
+                            Error al generar el mapa: ${error}
+                        </div>
+                    `;
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            analyzeGraph();
+        });
+    </script>
+</body>
+</html>
